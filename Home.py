@@ -305,9 +305,9 @@ if uploaded_files and select:
             pile_kh = st.selectbox("Select pile:", options=selected_pile)
             pile_kh_index = selected_pile.index(pile_kh)
             
-            tab3a, tab3b = st.tabs(["Summary", "Calculation Table"])
+            tab4a, tab4b = st.tabs(["Summary", "Calculation Table"])
             
-            with tab3a:
+            with tab4a:
 
                 overview = PileSummary()
                 summary_capacity, summary_kv = overview.get_summary_multiple_data(
@@ -352,7 +352,7 @@ if uploaded_files and select:
                 kh_table = all_kh_dict[pile_kh]
                 st.dataframe(kh_table, use_container_width=True)
             
-            with tab3b:
+            with tab4b:
                 st.markdown("STATIC CASE (NON-LIQUEFIED)")
                 st.dataframe(all_result_table[pile_kh_index], use_container_width=True)
                 
@@ -410,9 +410,4 @@ if uploaded_files and select:
 with tab6:
     show_pdf("memorandum_pile review approach_v4.pdf")
     
-    # m = borelog.get_map()
-    # mymap = st_folium(m, returned_objects=[])
-            
-    
-
-        
+ 
