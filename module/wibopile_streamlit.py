@@ -1696,7 +1696,7 @@ class PileChart():
             
             fig.add_trace(go.Scatter(x = X, y = Y, mode = 'lines', name = key_names[i]))
         
-        fig.write_image("chart_capacity_multi.png", scale=4, width=300, height=300)
+        #fig.write_image("chart_capacity_multi.png", scale=4, width=300, height=300)
         
         return fig
     
