@@ -3,7 +3,6 @@ pandas
 matplotlib
 plotly
 scipy
-textwrap
 fpdf
 fpdf2
 folium
