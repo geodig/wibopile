@@ -1,0 +1,11 @@
+openpyxl
+pandas
+matplotlib
+plotly
+scipy
+textwrap
+fpdf
+fpdf2
+folium
+utm
+streamlit_folium
