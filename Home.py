@@ -9,6 +9,12 @@ import base64
 from streamlit_folium import st_folium, folium_static
 from module.wibopile_streamlit import PileCalculator, PileCatalog, PileChart, PileSoilProfile, PileSummary, PileReport
 
+if 'stage' not in st.session_state:
+    st.session_state.stage = 0
+
+def set_state(i):
+    st.session_state.stage = i
+
 def show_pdf(file_path):
     with open(file_path,"rb") as f:
         base64_pdf = base64.b64encode(f.read()).decode('utf-8')
@@ -244,8 +250,7 @@ if uploaded_files and select:
             
         with col2b:
             m = borelog.get_map()
-            #mymap = st_folium(m, width=800, returned_objects=[])
-            folium_static(m, width=800)
+            mymap = st_folium(m, width=800, returned_objects=[])
     
     
     with tab3:
@@ -263,154 +268,164 @@ if uploaded_files and select:
             
             field_list = ["compression_ultimate", "compression_allowed", "tension_ultimate", "tension_allowed"]
             selected_field = st.selectbox("Select field to be displayed", options=field_list, index=1)
+            
+            if st.session_state.stage == 0:
+                st.button('CALCULATE', on_click=set_state, args=[1], use_container_width=True)
+                st.warning('To start calculation, click "CALCULATE" button and go to the next process. To perform another calculation with different input parameters, click "START OVER" button before changing the input parameters.',
+                           icon="⚠️")
+                # st.button('START OVER', on_click=set_state, args=[0], use_container_width=True)
+            
+            # button_calc = st.button('CALCULATE', use_container_width=True)
+            if st.session_state.stage >= 1:
+                st.button('START OVER', on_click=set_state, args=[0], use_container_width=True)
+                st.warning('To start calculation, click "CALCULATE" button and go to the next process. To perform another calculation with different input parameters, click "START OVER" button before changing the input parameters.',
+                           icon="⚠️")
+                
 
-            all_result_table, all_kv_table, all_liquefaction_table, all_summary, all_kh_dict, all_summary_liq = main_calculation(selected_pile,
-                                                                                                                borehole_assigned,
-                                                                                                                index_pile,
-                                                                                                                catalog_prop,
-                                                                                                                SF_compression,
-                                                                                                                SF_tension,
-                                                                                                                cohesiveapproach,
-                                                                                                                granularapproachshaft,
-                                                                                                                granularapproachendB,
-                                                                                                                liquefaction_checkbox,
-                                                                                                                PILE_DEPTH,
-                                                                                                                COMP_LOAD)
+                all_result_table, all_kv_table, all_liquefaction_table, all_summary, all_kh_dict, all_summary_liq = main_calculation(selected_pile,
+                                                                                                                    borehole_assigned,
+                                                                                                                    index_pile,
+                                                                                                                    catalog_prop,
+                                                                                                                    SF_compression,
+                                                                                                                    SF_tension,
+                                                                                                                    cohesiveapproach,
+                                                                                                                    granularapproachshaft,
+                                                                                                                    granularapproachendB,
+                                                                                                                    liquefaction_checkbox,
+                                                                                                                    PILE_DEPTH,
+                                                                                                                    COMP_LOAD)
             
             
-        with col3b:
-            
-            tab3a,tab3b = st.tabs(["non-liquefied","liquefied"])
-            chart = PileChart()
-            chart.get_multi_bearing_capacity_chart_mpl(all_result_table, selected_pile, 'compression_allowed', "chart_capacity_multi_mpl_CA.png")
-            chart.get_multi_bearing_capacity_chart_mpl(all_result_table, selected_pile, 'tension_allowed', "chart_capacity_multi_mpl_TA.png")
-            
-            FIG1 = chart.get_multi_bearing_capacity_chart(all_result_table, selected_pile, field = selected_field)
-            
-            if liquefaction_checkbox:
-                FIG2 = chart.get_multi_bearing_capacity_chart(all_liquefaction_table, selected_pile, field = selected_field)
-                
-                chart.get_multi_bearing_capacity_chart_mpl(all_liquefaction_table, selected_pile, 'compression_allowed', "chart_capacity_multi_mpl_liq_CA.png")
-                chart.get_multi_bearing_capacity_chart_mpl(all_liquefaction_table, selected_pile, 'tension_allowed', "chart_capacity_multi_mpl_liq_TA.png")
-                
-            with tab3a:
-                st.plotly_chart(FIG1, use_container_width = True)
-            
-            with tab3b:
-                if liquefaction_checkbox:
-                    st.plotly_chart(FIG2, use_container_width = True)
+                with col3b:
+                    
+                    tab3a,tab3b = st.tabs(["non-liquefied","liquefied"])
+                    chart = PileChart()
+                    chart.get_multi_bearing_capacity_chart_mpl(all_result_table, selected_pile, 'compression_allowed', "chart_capacity_multi_mpl_CA.png")
+                    chart.get_multi_bearing_capacity_chart_mpl(all_result_table, selected_pile, 'tension_allowed', "chart_capacity_multi_mpl_TA.png")
+                    
+                    FIG1 = chart.get_multi_bearing_capacity_chart(all_result_table, selected_pile, field = selected_field)
+                    
+                    if liquefaction_checkbox:
+                        FIG2 = chart.get_multi_bearing_capacity_chart(all_liquefaction_table, selected_pile, field = selected_field)
+                        
+                        chart.get_multi_bearing_capacity_chart_mpl(all_liquefaction_table, selected_pile, 'compression_allowed', "chart_capacity_multi_mpl_liq_CA.png")
+                        chart.get_multi_bearing_capacity_chart_mpl(all_liquefaction_table, selected_pile, 'tension_allowed', "chart_capacity_multi_mpl_liq_TA.png")
+                        
+                    with tab3a:
+                        st.plotly_chart(FIG1, use_container_width = True)
+                    
+                    with tab3b:
+                        if liquefaction_checkbox:
+                            st.plotly_chart(FIG2, use_container_width = True)
     
-    with tab4:
-        
-        if selected_pile:
-            pile_kh = st.selectbox("Select pile:", options=selected_pile)
-            pile_kh_index = selected_pile.index(pile_kh)
+                with tab4:
+                    
+                    if selected_pile:
+                        pile_kh = st.selectbox("Select pile:", options=selected_pile)
+                        pile_kh_index = selected_pile.index(pile_kh)
+                        
+                        tab3a, tab3b = st.tabs(["Summary", "Calculation Table"])
+                        
+                        with tab3a:
             
-            tab4a, tab4b = st.tabs(["Summary", "Calculation Table"])
+                            overview = PileSummary()
+                            summary_capacity, summary_kv = overview.get_summary_multiple_data(
+                                result_capacity_table = all_summary,
+                                result_kv_table = all_kv_table,
+                                key_name = selected_pile,
+                                load_compression = COMP_LOAD,
+                                load_tension = TENS_LOAD,
+                                )
+                            
+                            if liquefaction_checkbox:
+                                summary_capacity_liq, summary_kv_liq = overview.get_summary_multiple_data(
+                                    result_capacity_table = all_summary_liq,
+                                    result_kv_table = all_kv_table,
+                                    key_name = selected_pile,
+                                    load_compression = COMP_LOAD_DYN,
+                                    load_tension = TENS_LOAD_DYN,
+                                    )
+                            
+                            input_summary = overview.get_input_summary(
+                                SF_compression,
+                                SF_tension,
+                                cohesiveapproach,
+                                granularapproachshaft,
+                                granularapproachendB,
+                                PILE_DEPTH,
+                                COMP_LOAD,
+                                TENS_LOAD
+                                )
+                            
+                            st.subheader("Summary of bearing capacity and vertical spring stiffness coefficient")
+                            st.markdown("STATIC CASE (NON-LIQUEFIED)")
+                            st.dataframe(summary_capacity, use_container_width=True)
+                            st.dataframe(summary_kv, use_container_width=True)
+                            
+                            if liquefaction_checkbox:
+                                st.markdown("DYNAMIC CASE (LIQUEFIED)")
+                                st.dataframe(summary_capacity_liq, use_container_width=True)
+                            
+                            st.subheader("Summary of horizontal spring stiffness coefficient")
+                            st.markdown("STATIC CASE (NON-LIQUEFIED) ONLY")
+                            kh_table = all_kh_dict[pile_kh]
+                            st.dataframe(kh_table, use_container_width=True)
+                        
+                        with tab3b:
+                            st.markdown("STATIC CASE (NON-LIQUEFIED)")
+                            st.dataframe(all_result_table[pile_kh_index], use_container_width=True)
+                            
+                            if liquefaction_checkbox:
+                                st.markdown("DYNAMIC CASE (LIQUEFIED)")
+                                st.dataframe(all_liquefaction_table[pile_kh_index], use_container_width=True)
+                            
+                    else:
+                        st.warning('First select pile name from the catalog!')
             
-            with tab4a:
-
-                overview = PileSummary()
-                summary_capacity, summary_kv = overview.get_summary_multiple_data(
-                    result_capacity_table = all_summary,
-                    result_kv_table = all_kv_table,
-                    key_name = selected_pile,
-                    load_compression = COMP_LOAD,
-                    load_tension = TENS_LOAD,
-                    )
                 
-                if liquefaction_checkbox:
-                    summary_capacity_liq, summary_kv_liq = overview.get_summary_multiple_data(
-                        result_capacity_table = all_summary_liq,
-                        result_kv_table = all_kv_table,
-                        key_name = selected_pile,
-                        load_compression = COMP_LOAD_DYN,
-                        load_tension = TENS_LOAD_DYN,
-                        )
+                with tab5:
+                    st.button('Generate Report', on_click=set_state, args=[2])
+                    
+                    # report_button = st.button('Generate Report')
+                    if st.session_state.stage >= 2:
+                        if liquefaction_checkbox:
+                            generate_report(
+                                    filename = "report_pile.pdf",
+                                    soil_table = edited_table,
+                                    pile_catalog_table = catalog_table_dyn,
+                                    input_parameter_table = input_summary,
+                                    selected_pile = catalog_selected,
+                                    summary_capacity_table = summary_capacity,
+                                    summary_kv_table = summary_kv,
+                                    kh_tables = all_kh_dict,
+                                    liquefaction_checkbox = True,
+                                    summary_capacity_liq = summary_capacity_liq
+                                    )
+                        
+                        else:
+                            generate_report(
+                                    filename = "report_pile.pdf",
+                                    soil_table = edited_table,
+                                    pile_catalog_table = catalog_table_dyn,
+                                    input_parameter_table = input_summary,
+                                    selected_pile = catalog_selected,
+                                    summary_capacity_table = summary_capacity,
+                                    summary_kv_table = summary_kv,
+                                    kh_tables = all_kh_dict,
+                                    liquefaction_checkbox = False,
+                                    summary_capacity_liq = None
+                                    )
+                        
+                        with open("report_pile.pdf", "rb") as pdf_file:
+                            PDFbyte = pdf_file.read()
                 
-                input_summary = overview.get_input_summary(
-                    SF_compression,
-                    SF_tension,
-                    cohesiveapproach,
-                    granularapproachshaft,
-                    granularapproachendB,
-                    PILE_DEPTH,
-                    COMP_LOAD,
-                    TENS_LOAD
-                    )
-                
-                st.subheader("Summary of bearing capacity and vertical spring stiffness coefficient")
-                st.markdown("STATIC CASE (NON-LIQUEFIED)")
-                st.dataframe(summary_capacity, use_container_width=True)
-                st.dataframe(summary_kv, use_container_width=True)
-                
-                if liquefaction_checkbox:
-                    st.markdown("DYNAMIC CASE (LIQUEFIED)")
-                    st.dataframe(summary_capacity_liq, use_container_width=True)
-                
-                st.subheader("Summary of horizontal spring stiffness coefficient")
-                st.markdown("STATIC CASE (NON-LIQUEFIED) ONLY")
-                kh_table = all_kh_dict[pile_kh]
-                st.dataframe(kh_table, use_container_width=True)
-            
-            with tab4b:
-                st.markdown("STATIC CASE (NON-LIQUEFIED)")
-                st.dataframe(all_result_table[pile_kh_index], use_container_width=True)
-                
-                if liquefaction_checkbox:
-                    st.markdown("DYNAMIC CASE (LIQUEFIED)")
-                    st.dataframe(all_liquefaction_table[pile_kh_index], use_container_width=True)
-                
-        else:
-            st.warning('First select pile name from the catalog!')
-
-    
-    with tab5:
-        if selected_pile:
-            button_report = st.button('Generate Report')
-            if button_report:
-                if liquefaction_checkbox:
-                    generate_report(
-                            filename = "report_pile.pdf",
-                            soil_table = edited_table,
-                            pile_catalog_table = catalog_table_dyn,
-                            input_parameter_table = input_summary,
-                            selected_pile = catalog_selected,
-                            summary_capacity_table = summary_capacity,
-                            summary_kv_table = summary_kv,
-                            kh_tables = all_kh_dict,
-                            liquefaction_checkbox = True,
-                            summary_capacity_liq = summary_capacity_liq
-                            )
-                
-                else:
-                    generate_report(
-                            filename = "report_pile.pdf",
-                            soil_table = edited_table,
-                            pile_catalog_table = catalog_table_dyn,
-                            input_parameter_table = input_summary,
-                            selected_pile = catalog_selected,
-                            summary_capacity_table = summary_capacity,
-                            summary_kv_table = summary_kv,
-                            kh_tables = all_kh_dict,
-                            liquefaction_checkbox = False,
-                            summary_capacity_liq = None
-                            )
-                
-                with open("report_pile.pdf", "rb") as pdf_file:
-                    PDFbyte = pdf_file.read()
-        
-                st.download_button(label="Download Report", 
-                        data=PDFbyte,
-                        file_name="report_pile.pdf",
-                        mime='application/octet-stream')
-        
-        else:
-            st.warning("First select pile name from the catalog!")
-        
-
+                        st.download_button(label="Download Report", 
+                                data=PDFbyte,
+                                file_name="report_pile.pdf",
+                                mime='application/octet-stream')
 
 with tab6:
     show_pdf("memorandum_pile review approach_v4.pdf")
-    
- 
+
+            
+        
