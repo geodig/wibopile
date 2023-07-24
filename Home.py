@@ -185,7 +185,7 @@ if uploaded_files and select:
         
         with col2a:
             borelog = PileSoilProfile(uploaded_files[index_BH])
-            borelog.get_soil_profile_chart_mpl()
+            #borelog.get_soil_profile_chart_mpl()
             soil_table = borelog.get_soil_profile_table()
             
             tab2a, tab2b, tab2c = st.tabs(["Soil Table", "Soil Profile Chart", "Borehole Information"])
@@ -324,9 +324,9 @@ if uploaded_files and select:
                         pile_kh = st.selectbox("Select pile:", options=selected_pile)
                         pile_kh_index = selected_pile.index(pile_kh)
                         
-                        tab3a, tab3b = st.tabs(["Summary", "Calculation Table"])
+                        tab4a, tab4b = st.tabs(["Summary", "Calculation Table"])
                         
-                        with tab3a:
+                        with tab4a:
             
                             overview = PileSummary()
                             summary_capacity, summary_kv = overview.get_summary_multiple_data(
@@ -371,7 +371,7 @@ if uploaded_files and select:
                             kh_table = all_kh_dict[pile_kh]
                             st.dataframe(kh_table, use_container_width=True)
                         
-                        with tab3b:
+                        with tab4b:
                             st.markdown("STATIC CASE (NON-LIQUEFIED)")
                             st.dataframe(all_result_table[pile_kh_index], use_container_width=True)
                             
@@ -388,6 +388,7 @@ if uploaded_files and select:
                     
                     # report_button = st.button('Generate Report')
                     if st.session_state.stage >= 2:
+                        borelog.get_soil_profile_chart_mpl()
                         if liquefaction_checkbox:
                             generate_report(
                                     filename = "report_pile.pdf",
