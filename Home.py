@@ -366,41 +366,43 @@ if uploaded_files and select:
     
     with tab5:
         if selected_pile:
-            if liquefaction_checkbox:
-                generate_report(
-                        filename = "report_pile.pdf",
-                        soil_table = edited_table,
-                        pile_catalog_table = catalog_table_dyn,
-                        input_parameter_table = input_summary,
-                        selected_pile = catalog_selected,
-                        summary_capacity_table = summary_capacity,
-                        summary_kv_table = summary_kv,
-                        kh_tables = all_kh_dict,
-                        liquefaction_checkbox = True,
-                        summary_capacity_liq = summary_capacity_liq
-                        )
-            
-            else:
-                generate_report(
-                        filename = "report_pile.pdf",
-                        soil_table = edited_table,
-                        pile_catalog_table = catalog_table_dyn,
-                        input_parameter_table = input_summary,
-                        selected_pile = catalog_selected,
-                        summary_capacity_table = summary_capacity,
-                        summary_kv_table = summary_kv,
-                        kh_tables = all_kh_dict,
-                        liquefaction_checkbox = False,
-                        summary_capacity_liq = None
-                        )
-            
-            with open("report_pile.pdf", "rb") as pdf_file:
-                PDFbyte = pdf_file.read()
-    
-            st.download_button(label="Download Report", 
-                    data=PDFbyte,
-                    file_name="report_pile.pdf",
-                    mime='application/octet-stream')
+            button_report = st.button('Generate Report)
+            if button_report:
+                if liquefaction_checkbox:
+                    generate_report(
+                            filename = "report_pile.pdf",
+                            soil_table = edited_table,
+                            pile_catalog_table = catalog_table_dyn,
+                            input_parameter_table = input_summary,
+                            selected_pile = catalog_selected,
+                            summary_capacity_table = summary_capacity,
+                            summary_kv_table = summary_kv,
+                            kh_tables = all_kh_dict,
+                            liquefaction_checkbox = True,
+                            summary_capacity_liq = summary_capacity_liq
+                            )
+                
+                else:
+                    generate_report(
+                            filename = "report_pile.pdf",
+                            soil_table = edited_table,
+                            pile_catalog_table = catalog_table_dyn,
+                            input_parameter_table = input_summary,
+                            selected_pile = catalog_selected,
+                            summary_capacity_table = summary_capacity,
+                            summary_kv_table = summary_kv,
+                            kh_tables = all_kh_dict,
+                            liquefaction_checkbox = False,
+                            summary_capacity_liq = None
+                            )
+                
+                with open("report_pile.pdf", "rb") as pdf_file:
+                    PDFbyte = pdf_file.read()
+        
+                st.download_button(label="Download Report", 
+                        data=PDFbyte,
+                        file_name="report_pile.pdf",
+                        mime='application/octet-stream')
         
         else:
             st.warning("First select pile name from the catalog!")
