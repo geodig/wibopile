@@ -244,7 +244,8 @@ if uploaded_files and select:
             
         with col2b:
             m = borelog.get_map()
-            mymap = st_folium(m, width=800, returned_objects=[])
+            #mymap = st_folium(m, width=800, returned_objects=[])
+            folium_static(m, width=800)
     
     
     with tab3:
