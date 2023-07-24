@@ -15,7 +15,7 @@ def show_pdf(file_path):
     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="1100" height="800" type="application/pdf"></iframe>'
     st.markdown(pdf_display, unsafe_allow_html=True)
 
-@st.cache_data(ttl='20s')
+@st.cache_data
 def generate_report(
         filename,
         soil_table,
