@@ -366,7 +366,7 @@ if uploaded_files and select:
     
     with tab5:
         if selected_pile:
-            button_report = st.button('Generate Report)
+            button_report = st.button('Generate Report')
             if button_report:
                 if liquefaction_checkbox:
                     generate_report(
